@@ -6,6 +6,7 @@ import { join } from 'node:path';
 import { Store } from '../src/store.js';
 import { SolanaWatcher } from '../src/solana.js';
 import { config, manifest } from '../src/config.js';
+import { RpcError } from '../src/rpc.js';
 import { eventLogs, mint, program } from './helpers.js';
 
 const signature = (name, slot = 10) => ({ signature: name, slot, blockTime: 100, err: null });
@@ -43,6 +44,21 @@ test('history retention gaps are visible and never discard the old head', async 
     await assert.rejects(watcher.discoverRecent(), /history gap/);
     assert.equal(store.get('solanaHead'), 'old');
     assert.equal(store.get('historyGap').stop, 'old');
+  } finally { store.close(); }
+});
+test('a rate limit defers the current transaction and stops the batch', async () => {
+  const store = new Store(':memory:');
+  try {
+    store.enqueue([signature('second', 11), signature('first', 10)]);
+    let calls = 0;
+    const watcher = new SolanaWatcher(config({}), store, { call: async () => {
+      calls++;
+      throw new RpcError('Solana', 'getTransaction', 'HTTP 429', 60000);
+    } });
+    await assert.rejects(watcher.processPending(), /HTTP 429/);
+    assert.equal(calls, 1);
+    assert.equal(store.pendingCount(), 2);
+    assert.equal(store.status().unresolvedSolanaTransactions[0].error, 'Solana getTransaction: HTTP 429');
   } finally { store.close(); }
 });
 test('null transactions stay retryable, failed transactions are skipped, and events deduplicate', async () => {

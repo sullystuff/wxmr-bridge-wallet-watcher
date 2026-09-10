@@ -1,7 +1,9 @@
 import JSONbigFactory from 'json-bigint';
 import { setTimeout as delay } from 'node:timers/promises';
 
-const json = JSONbigFactory({ useNativeBigInt: true, protoAction: 'error', constructorAction: 'error' });
+// Long numeric tokens stay strings. Solana also includes decimal uiAmount fields,
+// which cannot be parsed as BigInt; accounting consumes only integer atomic fields.
+const json = JSONbigFactory({ storeAsString: true, protoAction: 'error', constructorAction: 'error' });
 export const parseJson = text => json.parse(text);
 export const stringify = value => JSON.stringify(value, (_, v) => typeof v === 'bigint' ? v.toString() : v);
 export const safeError = error => error instanceof RpcError ? error.message : 'Operation failed; no RPC response or credentials logged';
@@ -9,6 +11,7 @@ export const safeError = error => error instanceof RpcError ? error.message : 'O
 export class RpcError extends Error {
   constructor(label, method, code, retryAfter = 0) {
     super(`${label} ${method}: ${code}`);
+    this.name = 'RpcError';
     this.code = code;
     this.retryAfter = retryAfter;
   }
@@ -24,13 +27,20 @@ export class Rpc {
     this.tail = Promise.resolve();
     this.nextAt = 0;
     this.counter = 0;
+    this.controller = new AbortController();
   }
+
+  close() { this.controller.abort(); }
 
   call(method, params = {}) {
     if (!this.methods.has(method)) return Promise.reject(new Error(`RPC method is not allowed: ${method}`));
     const task = this.tail.then(async () => {
+      if (this.controller.signal.aborted) throw new RpcError(this.label, method, 'stopped');
       const wait = this.nextAt - Date.now();
-      if (wait > 0) await delay(wait);
+      if (wait > 0) {
+        try { await delay(wait, undefined, { signal: this.controller.signal }); }
+        catch { throw new RpcError(this.label, method, 'stopped'); }
+      }
       this.nextAt = Date.now() + this.interval;
       let response;
       const id = ++this.counter;
@@ -39,7 +49,7 @@ export class Rpc {
           method: 'POST',
           headers: { 'content-type': 'application/json', 'user-agent': 'wxmr-public-watcher/0.1' },
           body: stringify({ jsonrpc: '2.0', id, method, params }),
-          signal: AbortSignal.timeout(this.timeout),
+          signal: AbortSignal.any([AbortSignal.timeout(this.timeout), this.controller.signal]),
           redirect: 'error',
         });
       } catch { throw new RpcError(this.label, method, 'transport unavailable'); }

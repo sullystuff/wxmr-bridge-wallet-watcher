@@ -36,12 +36,14 @@ export class MoneroWatcher {
     this.nextAttempt = 0;
     this.addresses = new Map([[0, manifest.monero.primaryAddress]]);
     this.mappedAddresses = new Set();
+    this.stopped = false;
   }
   async checkCoverage() {
     const mappings = [...new Set(this.store.mappings().map(row => row.address))];
     const unresolved = [];
     // Each published address is checked once after it resolves; failures remain visible and are retried.
     for (const address of mappings) {
+      if (this.stopped) return;
       if (this.mappedAddresses.has(address)) continue;
       try {
         const result = await this.rpc.call('get_address_index', { address });
@@ -64,6 +66,7 @@ export class MoneroWatcher {
     const info = await this.daemon.call('get_info');
     if (info.nettype !== 'mainnet' || info.offline === true || info.synchronized !== true) throw new Error('Monero mainnet daemon is not synchronized');
     await this.checkCoverage();
+    if (this.stopped) return;
     const heightBefore = integer((await this.rpc.call('get_height')).height);
     const outputs = await this.rpc.call('incoming_transfers', { transfer_type: 'all', account_index: 0 });
     if (outputs.transfers !== undefined && !Array.isArray(outputs.transfers)) throw new Error('Invalid incoming output list');
@@ -76,6 +79,7 @@ export class MoneroWatcher {
     const receipts = [];
     const ids = new Set();
     for (const output of outputs.transfers ?? []) {
+      if (this.stopped) return;
       if (!hashPattern.test(output.tx_hash) || !hashPattern.test(output.pubkey)) throw new Error('Invalid Monero output identity');
       const major = integer(output.subaddr_index.major);
       const minor = integer(output.subaddr_index.minor);
@@ -114,6 +118,7 @@ export class MoneroWatcher {
   }
   async verifyProofs() {
     for (const group of this.store.proofGroups(Date.now(), this.config.batchSize)) {
+      if (this.stopped) return;
       const first = group[0];
       const keys = [...new Set(group.map(row => row.tx_key).filter(key => keyPattern.test(key) && key.length <= 64 * 256))];
       if (!hashPattern.test(first.txid) || !keys.length) {
@@ -123,12 +128,14 @@ export class MoneroWatcher {
       let proof = null;
       let lastError = null;
       for (const key of keys) {
+        if (this.stopped) return;
         try {
           const result = await this.rpc.call('check_tx_key', { txid: first.txid, address: first.address, tx_key: key });
           const checked = classifyProof(group, result, this.config.confirmations);
           if (!proof || BigInt(checked.receivedAtomic) > BigInt(proof.receivedAtomic)) proof = checked;
         } catch (error) { lastError = error; }
       }
+      if (this.stopped) return;
       if (!proof) {
         this.store.saveProof(group, {
           state: 'verification_unavailable', txid: first.txid, address: first.address,
@@ -142,6 +149,7 @@ export class MoneroWatcher {
     }
   }
   async tick(force = false) {
+    if (this.stopped) return;
     if (!force && Date.now() < this.nextAttempt) return;
     this.nextAttempt = Date.now() + this.config.moneroPoll;
     try {
@@ -150,8 +158,14 @@ export class MoneroWatcher {
       this.store.set('moneroError', null);
       this.store.set('moneroLastPoll', new Date().toISOString());
     } catch (error) {
+      if (this.stopped) return;
       this.store.set('moneroError', safeError(error));
       this.nextAttempt = Date.now() + Math.max(this.config.moneroPoll, error.retryAfter || 0);
     }
+  }
+  stop() {
+    this.stopped = true;
+    this.rpc.close?.();
+    this.daemon.close?.();
   }
 }

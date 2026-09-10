@@ -33,8 +33,9 @@ Runtime files default to ./data. Only public bridge/view/proof data is used.`);
   const unlock = ['watch', 'once'].includes(command) ? acquireLock(cfg.dataDir, 'watcher') : () => {};
   let store;
   let solana;
+  let monero;
   let stopping = false;
-  const stop = () => { stopping = true; solana?.stop(); };
+  const stop = () => { stopping = true; solana?.stop(); monero?.stop(); };
   process.once('SIGINT', stop); process.once('SIGTERM', stop);
   try {
     store = new Store(path);
@@ -52,7 +53,7 @@ Runtime files default to ./data. Only public bridge/view/proof data is used.`);
       return;
     }
     solana = new SolanaWatcher(cfg, store);
-    const monero = new MoneroWatcher(cfg, store);
+    monero = new MoneroWatcher(cfg, store);
     store.set('moneroEnabled', !cfg.solanaOnly);
     let sequence = store.lastSeq();
     if (command === 'watch') solana.startStream();
@@ -82,6 +83,7 @@ Runtime files default to ./data. Only public bridge/view/proof data is used.`);
     } while (!stopping);
   } finally {
     solana?.stop();
+    monero?.stop();
     store?.close();
     unlock();
     process.removeListener('SIGINT', stop); process.removeListener('SIGTERM', stop);

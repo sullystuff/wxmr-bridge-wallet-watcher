@@ -124,6 +124,7 @@ export class SolanaWatcher {
           this.store.done(entry.signature);
         });
       } catch (error) {
+        if (this.stopped) break;
         const message = error.name === 'RpcError' ? safeError(error) : 'Transaction could not be decoded or validated against the public schema';
         this.store.defer(entry.signature, message, error.retryAfter || 60000);
         if (error.name === 'RpcError') throw error;
@@ -152,6 +153,7 @@ export class SolanaWatcher {
       this.store.set('solanaLastPoll', new Date().toISOString());
       this.store.set('solanaError', null);
     } catch (error) {
+      if (this.stopped) return;
       this.nextAttempt = Date.now() + (error.retryAfter || 30000);
       this.store.set('solanaError', safeError(error));
     }
@@ -197,6 +199,7 @@ export class SolanaWatcher {
   }
   stop() {
     this.stopped = true;
+    this.rpc.close?.();
     clearTimeout(this.reconnectTimer);
     this.socket?.terminate();
   }
