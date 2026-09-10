@@ -4,6 +4,16 @@ An independent observer of wXMR deposits and withdrawals using information publi
 
 The only bundled key is the **published Monero view key**. Its public source, retrieval time, program identity, and the public IDL checksum are recorded in `public/mainnet.json`. No spend key, seed, Solana signing key, production database, or production environment file is used.
 
+## Personal launcher
+
+```sh
+./watch.sh
+```
+
+This starts the view wallet and watcher together. Ctrl-C stops both. It finds `monero-wallet-rpc` on your PATH or at `$HOME/monero/monero-wallet-rpc`, uses the local mainnet daemon, and keeps state in `data/personal/`. The default Monero scan starts at **3,756,000** for the personal test; Solana history continues to backfill. Use `./watch.sh status` or `./watch.sh events` from another terminal. Environment variables override these defaults; the launcher does not read `.env` automatically.
+
+For a fresh scan of all Monero history: `WATCHER_DATA_DIR=./data/full MONERO_RESTORE_HEIGHT=0 ./watch.sh`.
+
 ## Run
 
 Requirements: Node.js **22.13 or newer**, an official `monero-wallet-rpc` binary supporting `set_subaddress_lookahead`, a synchronized mainnet Monero daemon, and Solana HTTP/WebSocket access. The defaults use public Solana RPC and a Monero daemon at `127.0.0.1:18081`. No paid RPC credential is required. Node 22 may print its standard experimental SQLite warning.
