@@ -20,6 +20,10 @@ case "$watcher_command" in
 ./watch.sh status          Show this launcher's local status.
 ./watch.sh events          Export its saved JSONL events (supports --after SEQUENCE).
 
+If the test is already running in screen, attach with:
+  screen -r wxmr-watcher-test
+Press Ctrl-C in that session to stop both components before starting a new run.
+
 Defaults: data/personal, local Monero daemon, wallet RPC port 28088,
 and Monero history from block 3756000. Environment variables override defaults.
 For all Monero history, use a fresh data directory and MONERO_RESTORE_HEIGHT=0.
@@ -44,8 +48,17 @@ fi
 export MONERO_WALLET_RPC_BIN
 
 mkdir -p "$WATCHER_DATA_DIR"
-exec 9>"$WATCHER_DATA_DIR/personal-launcher.lock"
-if ! flock -n 9; then echo 'The personal watcher is already running in this data directory.' >&2; exit 1; fi
+exec 9>>"$WATCHER_DATA_DIR/personal-launcher.lock"
+if ! flock -n 9; then
+  cat >&2 <<'RUNNING'
+The personal watcher is already running in this data directory.
+For the background test, attach with: screen -r wxmr-watcher-test
+Press Ctrl-C there to stop both components, then run ./watch.sh again.
+To find the launcher, use: pgrep -af '[w]atch.sh'
+The underlying processes are named bash and node, so plain pgrep watcher misses them.
+RUNNING
+  exit 1
+fi
 if [[ ! -d node_modules ]]; then npm ci --ignore-scripts --no-audit --no-fund >&2; fi
 
 wallet_pid=''

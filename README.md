@@ -12,6 +12,8 @@ The only bundled key is the **published Monero view key**. Its public source, re
 
 This starts the view wallet and watcher together. Ctrl-C stops both. It finds `monero-wallet-rpc` on your PATH or at `$HOME/monero/monero-wallet-rpc`, uses the local mainnet daemon, and keeps state in `data/personal/`. The default Monero scan starts at **3,756,000** for the personal test; Solana history continues to backfill. Use `./watch.sh status` or `./watch.sh events` from another terminal. Environment variables override these defaults; the launcher does not read `.env` automatically.
 
+If a background test is already running, attach with `screen -r wxmr-watcher-test`. Press Ctrl-C in that session to stop both components, then run `./watch.sh` in your own terminal. `pgrep -af '[w]atch.sh'` finds the launcher by its command line; plain `pgrep watcher` does not match the Bash and Node process names. A lock conflict means another process holds the lock, rather than just that the lock file exists.
+
 For a fresh scan of all Monero history: `WATCHER_DATA_DIR=./data/full MONERO_RESTORE_HEIGHT=0 ./watch.sh`.
 
 ## Run
