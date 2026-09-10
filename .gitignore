@@ -11,3 +11,4 @@ data/
 *.wallet
 coverage/
 .DS_Store
+.shared-ringdb/
