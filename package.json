@@ -4,7 +4,9 @@
   "private": true,
   "description": "Read-only wXMR deposit and withdrawal watcher using published Monero view keys and finalized Solana records",
   "type": "module",
-  "engines": { "node": ">=22.13.0" },
+  "engines": {
+    "node": ">=22.13.0"
+  },
   "scripts": {
     "start": "node src/cli.js watch",
     "once": "node src/cli.js once",
@@ -13,11 +15,11 @@
     "events": "node src/cli.js events",
     "verify:public": "node scripts/verify-public.js",
     "check:public": "node scripts/check-public.js",
-    "test": "node --test"
+    "test": "node --test test/*.test.js"
   },
   "dependencies": {
     "bs58": "6.0.0",
     "json-bigint": "1.0.0",
-    "ws": "8.18.3"
+    "ws": "8.21.3"
   }
 }

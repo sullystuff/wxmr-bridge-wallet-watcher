@@ -84,7 +84,7 @@ export class SolanaWatcher {
     if (!cursor || cursor.exhausted || this.store.pendingCount() > this.config.batchSize * 2) return;
     const page = await this.signatures(cursor.before);
     this.store.transaction(() => {
-      this.store.enqueue(page);
+      this.store.enqueue(page, 1);
       if (page.length && page.at(-1).signature === cursor.before) throw new Error('Backfill pagination did not advance');
       this.store.set('backfill', {
         before: page.at(-1)?.signature ?? cursor.before,
@@ -170,6 +170,7 @@ export class SolanaWatcher {
     socket.on('open', () => socket.send(JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'logsSubscribe', params: [{ mentions: [PROGRAM] }, { commitment: 'finalized' }] })));
     socket.on('pong', () => { alive = true; });
     socket.on('message', bytes => {
+      if (this.stopped) return;
       let message;
       try { message = JSON.parse(bytes.toString()); } catch { return; }
       if (message.id === 1 && Number.isSafeInteger(message.result)) {
@@ -183,7 +184,7 @@ export class SolanaWatcher {
         this.nextDiscovery = 0;
       }
     });
-    socket.on('error', () => this.store.set('solanaStream', 'unavailable; HTTP catch-up remains active'));
+    socket.on('error', () => { if (!this.stopped) this.store.set('solanaStream', 'unavailable; HTTP catch-up remains active'); });
     socket.on('close', () => {
       clearInterval(heartbeat);
       this.socket = null;

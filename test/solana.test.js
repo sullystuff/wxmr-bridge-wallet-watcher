@@ -9,6 +9,14 @@ import { config, manifest } from '../src/config.js';
 import { eventLogs, mint, program } from './helpers.js';
 
 const signature = (name, slot = 10) => ({ signature: name, slot, blockTime: 100, err: null });
+test('new live records take priority over older backfill work', () => {
+  const store = new Store(':memory:');
+  try {
+    store.enqueue([signature('historical', 1)], 1);
+    store.enqueue([signature('live', 100)]);
+    assert.deepEqual(store.pending(2).map(row => row.signature), ['live', 'historical']);
+  } finally { store.close(); }
+});
 test('persists every queued signature before advancing the head; resumes an interrupted catch-up', async () => {
   const directory = mkdtempSync(join(tmpdir(), 'wxmr-history-test-'));
   let store = new Store(join(directory, 'state.sqlite'));

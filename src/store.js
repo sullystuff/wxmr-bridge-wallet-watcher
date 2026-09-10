@@ -17,7 +17,8 @@ export class Store {
       CREATE TABLE IF NOT EXISTS queue (
         ordinal INTEGER PRIMARY KEY AUTOINCREMENT, signature TEXT NOT NULL UNIQUE,
         slot INTEGER NOT NULL, block_time INTEGER, failed INTEGER NOT NULL,
-        done INTEGER NOT NULL DEFAULT 0, retry_at INTEGER NOT NULL DEFAULT 0, error TEXT
+        done INTEGER NOT NULL DEFAULT 0, retry_at INTEGER NOT NULL DEFAULT 0, error TEXT,
+        priority INTEGER NOT NULL DEFAULT 0
       );
       CREATE INDEX IF NOT EXISTS queue_pending ON queue(done, retry_at, slot);
       CREATE TABLE IF NOT EXISTS events (
@@ -43,6 +44,9 @@ export class Store {
         checked_at INTEGER NOT NULL DEFAULT 0, retry_at INTEGER NOT NULL DEFAULT 0
       );
     `);
+    if (!this.db.prepare('PRAGMA table_info(queue)').all().some(column => column.name === 'priority')) {
+      this.db.exec('ALTER TABLE queue ADD COLUMN priority INTEGER NOT NULL DEFAULT 0');
+    }
     const identity = `${manifest.solana.genesisHash}:${manifest.solana.programId}:${manifest.monero.primaryAddress}`;
     if (this.get('identity') && this.get('identity') !== identity) throw new Error('Database belongs to another bridge');
     this.set('identity', identity);
@@ -68,16 +72,17 @@ export class Store {
       .map(row => ({ ...row, data: JSON.parse(row.data) }));
   }
   lastSeq() { return this.db.prepare('SELECT COALESCE(MAX(seq),0) AS n FROM events').get().n; }
-  enqueue(entries) {
-    const insert = this.db.prepare('INSERT OR IGNORE INTO queue(signature,slot,block_time,failed) VALUES (?,?,?,?)');
+  enqueue(entries, priority = 0) {
+    const insert = this.db.prepare(`INSERT INTO queue(signature,slot,block_time,failed,priority) VALUES (?,?,?,?,?)
+      ON CONFLICT(signature) DO UPDATE SET priority=MIN(queue.priority,excluded.priority)`);
     for (const entry of entries) {
       if (!Number.isSafeInteger(entry.slot) || typeof entry.signature !== 'string') throw new Error('Invalid signature history');
-      insert.run(entry.signature, entry.slot, entry.blockTime ?? null, entry.err ? 1 : 0);
+      insert.run(entry.signature, entry.slot, entry.blockTime ?? null, entry.err ? 1 : 0, priority);
     }
   }
   pending(limit, now = Date.now()) {
     // Signatures arrive newest first; descending discovery order resolves same-slot ties.
-    return this.db.prepare('SELECT * FROM queue WHERE done=0 AND retry_at<=? ORDER BY slot,ordinal DESC LIMIT ?').all(now, limit);
+    return this.db.prepare('SELECT * FROM queue WHERE done=0 AND retry_at<=? ORDER BY priority,slot,ordinal DESC LIMIT ?').all(now, limit);
   }
   pendingCount() { return this.db.prepare('SELECT count(*) AS n FROM queue WHERE done=0').get().n; }
   done(signature) { this.db.prepare('UPDATE queue SET done=1,error=NULL WHERE signature=?').run(signature); }
@@ -160,7 +165,7 @@ export class Store {
       const id = `${receipt.txid}:${receipt.outputPublicKey}`;
       const prior = this.db.prepare('SELECT data FROM receipts WHERE id=?').get(id);
       const { confirmations, ...stable } = receipt;
-      this.db.prepare(`INSERT INTO receipts VALUES (?,?,?,?,?,?) ON CONFLICT(id)
+      this.db.prepare(`INSERT INTO receipts VALUES (?,?,?,?,?) ON CONFLICT(id)
         DO UPDATE SET address=excluded.address,data=excluded.data,seen=excluded.seen`)
         .run(id, receipt.txid, receipt.address, stringify(receipt), seen);
       // Reappearances after a reorg must be observable even when values are unchanged.
