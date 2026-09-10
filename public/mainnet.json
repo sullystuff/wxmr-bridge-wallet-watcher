@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "source": "https://wxmr.io/transparency",
+  "retrievedAt": "2026-09-10T21:36:20.550478+00:00",
+  "monero": {
+    "network": "mainnet",
+    "primaryAddress": "45ZYpKmPaPmh3bnRP1XpMz8cASJQf1cfUgq32H8trCYA4RodzXhsmt2VYkQX9QQ65CetiGja65tH2JmKC3gEZtZjB7AzMpd",
+    "publishedViewKey": "e4e02de197582ff2e93f9eaefc96e122a13ffa838736ef38f4a8ea27a0dc4909"
+  },
+  "solana": {
+    "network": "mainnet-beta",
+    "genesisHash": "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d",
+    "programId": "EzBkC8P5wxab9kwrtV5hRdynHAfB5w3UPcPXNgMseVA8",
+    "mint": "WXMRyRZhsa19ety5erZhHg4N3xj3EVN92u94422teJp",
+    "decimals": 12
+  },
+  "idl": {
+    "source": "https://wxmr.io/_next/static/chunks/2462a32c3eb4d1b1.js",
+    "sha256": "16ed609f21b914e948a5f1116ab9abb8768197a1c3e736f875eb1d278fe009f7",
+    "extraction": "JSON IDL embedded in the publicly served transparency-page JavaScript; no backend files copied"
+  },
+  "keyPolicy": "Only the view key published on the source page is bundled. Withdrawal and consolidation transaction proof keys are accepted only from finalized records of this Solana program. No spend key, seed, signing key, or credential is required."
+}

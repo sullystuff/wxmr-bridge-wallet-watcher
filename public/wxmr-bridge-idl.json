@@ -1,0 +1,2308 @@
+{
+  "address": "EzBkC8P5wxab9kwrtV5hRdynHAfB5w3UPcPXNgMseVA8",
+  "metadata": {
+    "name": "wxmr_bridge",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "wXMR Bridge - Solana to Monero"
+  },
+  "instructions": [
+    {
+      "name": "assign_deposit_address",
+      "docs": [
+        "admin function"
+      ],
+      "discriminator": [
+        108,
+        239,
+        151,
+        163,
+        214,
+        28,
+        41,
+        254
+      ],
+      "accounts": [
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "deposit",
+          "writable": true
+        },
+        {
+          "name": "authority",
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "xmr_address",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "claim_pending_mint",
+      "docs": [
+        "User claims pending tokens after creating their own ATA",
+        "This transfers tokens from the pending account (owned by deposit PDA) to user's ATA",
+        "and closes the pending account, refunding rent to bridge authority"
+      ],
+      "discriminator": [
+        231,
+        97,
+        226,
+        31,
+        241,
+        172,
+        157,
+        190
+      ],
+      "accounts": [
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "deposit",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  100,
+                  101,
+                  112,
+                  111,
+                  115,
+                  105,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              }
+            ]
+          }
+        },
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "deposit"
+          ]
+        },
+        {
+          "name": "pending_token_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "deposit"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  6,
+                  221,
+                  246,
+                  225,
+                  215,
+                  101,
+                  161,
+                  147,
+                  217,
+                  203,
+                  225,
+                  70,
+                  206,
+                  235,
+                  121,
+                  172,
+                  28,
+                  180,
+                  133,
+                  237,
+                  95,
+                  91,
+                  55,
+                  145,
+                  58,
+                  140,
+                  245,
+                  133,
+                  126,
+                  255,
+                  0,
+                  169
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "wxmr_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "owner_token_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "owner"
+              },
+              {
+                "kind": "const",
+                "value": [
+                  6,
+                  221,
+                  246,
+                  225,
+                  215,
+                  101,
+                  161,
+                  147,
+                  217,
+                  203,
+                  225,
+                  70,
+                  206,
+                  235,
+                  121,
+                  172,
+                  28,
+                  180,
+                  133,
+                  237,
+                  95,
+                  91,
+                  55,
+                  145,
+                  58,
+                  140,
+                  245,
+                  133,
+                  126,
+                  255,
+                  0,
+                  169
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "wxmr_mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "wxmr_mint",
+          "address": "WXMRyRZhsa19ety5erZhHg4N3xj3EVN92u94422teJp",
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "address": "Ds4prSZNwyxTz4PZmHXoHDXFzLZ1c8MkfhUwGtqvAvpK",
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "complete_withdrawal",
+      "docs": [
+        "Backend completes withdrawal after sending XMR - closes PDA and refunds rent to user",
+        "Can be called from Pending (legacy) or Sending state"
+      ],
+      "discriminator": [
+        107,
+        98,
+        134,
+        131,
+        74,
+        120,
+        174,
+        121
+      ],
+      "accounts": [
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "withdrawal",
+          "writable": true
+        },
+        {
+          "name": "user",
+          "writable": true
+        },
+        {
+          "name": "authority",
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "xmr_tx_hash",
+          "type": "string"
+        },
+        {
+          "name": "xmr_tx_key",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "create_audit_record",
+      "docs": [
+        "Initialize the AMM pool (authority only)",
+        "Add liquidity to the AMM (authority only)",
+        "Remove liquidity from the AMM (authority only)",
+        "Update AMM prices (authority only - oracle)",
+        "Enable or disable AMM trading (authority only)",
+        "Buy wXMR with USDC",
+        "Sell wXMR for USDC",
+        "Create an audit record for epoch consolidation (authority only)",
+        "Account size is dynamic based on initial data length"
+      ],
+      "discriminator": [
+        247,
+        223,
+        36,
+        206,
+        121,
+        62,
+        176,
+        26
+      ],
+      "accounts": [
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "audit",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  117,
+                  100,
+                  105,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "epoch"
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "epoch",
+          "type": "u64"
+        },
+        {
+          "name": "circulating_supply",
+          "type": "u64"
+        },
+        {
+          "name": "spendable_balance",
+          "type": "u64"
+        },
+        {
+          "name": "unconfirmed_balance",
+          "type": "u64"
+        },
+        {
+          "name": "data",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "create_deposit_account",
+      "docs": [
+        "Create token metadata for wXMR mint (authority only, one-time)",
+        "This uses CPI to Metaplex Token Metadata program, with config PDA signing as mint authority",
+        "Public",
+        "User creates their permanent deposit account (one per wallet)",
+        "Rent serves as spam deterrent - user pays ~0.002 SOL to create"
+      ],
+      "discriminator": [
+        25,
+        217,
+        82,
+        207,
+        22,
+        150,
+        122,
+        181
+      ],
+      "accounts": [
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "deposit",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  100,
+                  101,
+                  112,
+                  111,
+                  115,
+                  105,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "extend_audit_data",
+      "docs": [
+        "Append data to an existing audit record (authority only)",
+        "Reallocates the account to fit additional data"
+      ],
+      "discriminator": [
+        180,
+        105,
+        90,
+        172,
+        234,
+        218,
+        238,
+        34
+      ],
+      "accounts": [
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "audit",
+          "writable": true
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "epoch",
+          "type": "u64"
+        },
+        {
+          "name": "additional_data",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "mark_withdrawal_sending",
+      "docs": [
+        "Backend marks withdrawal as sending BEFORE attempting XMR transfer",
+        "This prevents double-spend: once marked Sending, cannot be reverted",
+        "Backend calls this before sendXmr(), then complete after XMR is sent"
+      ],
+      "discriminator": [
+        50,
+        143,
+        96,
+        235,
+        25,
+        104,
+        34,
+        115
+      ],
+      "accounts": [
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "withdrawal",
+          "writable": true
+        },
+        {
+          "name": "authority",
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "mint_deposit",
+      "docs": [
+        "admin function",
+        "if token account doesn't exist, put amount in pending section"
+      ],
+      "discriminator": [
+        171,
+        65,
+        49,
+        61,
+        7,
+        88,
+        11,
+        9
+      ],
+      "accounts": [
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "deposit",
+          "docs": [
+            "Deposit account - stays open, no close constraint"
+          ],
+          "writable": true
+        },
+        {
+          "name": "wxmr_mint",
+          "writable": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "owner_token_account",
+          "writable": true
+        },
+        {
+          "name": "pending_token_account",
+          "writable": true
+        },
+        {
+          "name": "owner",
+          "writable": true
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "remove_fee_override",
+      "docs": [
+        "admin function",
+        "Remove a user from the fee whitelist - they revert to the global fee.",
+        "Rent is refunded to the authority."
+      ],
+      "discriminator": [
+        237,
+        246,
+        238,
+        80,
+        226,
+        26,
+        85,
+        244
+      ],
+      "accounts": [
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "fee_override",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  101,
+                  101,
+                  95,
+                  111,
+                  118,
+                  101,
+                  114,
+                  114,
+                  105,
+                  100,
+                  101
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "user",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "request_withdrawal",
+      "docs": [
+        "User closes their deposit account to get a new XMR address",
+        "Rent goes to authority (the subaddress is now abandoned/wasted)",
+        "User must create a new deposit account to get a fresh address",
+        "Request withdrawal - burns wXMR and creates a withdrawal PDA.",
+        "`exact_out` selects how `amount` relates to the protocol fee:",
+        "- false (fee-inclusive): `amount` is the total wXMR debited; the fee is taken",
+        "out of it and the remaining net = amount - fee is burned and paid out as XMR.",
+        "- true  (fee-exclusive): `amount` is the exact net XMR the user receives (and",
+        "burns); the debit is grossed up so gross - fee == amount, i.e.",
+        "gross = amount / (1 - fee_bps/denom). The user spends `amount + fee` wXMR total."
+      ],
+      "discriminator": [
+        251,
+        85,
+        121,
+        205,
+        56,
+        201,
+        12,
+        177
+      ],
+      "accounts": [
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "withdrawal",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  119,
+                  105,
+                  116,
+                  104,
+                  100,
+                  114,
+                  97,
+                  119,
+                  97,
+                  108
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              },
+              {
+                "kind": "arg",
+                "path": "nonce"
+              }
+            ]
+          }
+        },
+        {
+          "name": "wxmr_mint",
+          "writable": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "user_token_account",
+          "writable": true
+        },
+        {
+          "name": "fee_treasury",
+          "docs": [
+            "Config-owned treasury that receives the wXMR fee."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  101,
+                  101,
+                  95,
+                  116,
+                  114,
+                  101,
+                  97,
+                  115,
+                  117,
+                  114,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "fee_override",
+          "docs": [
+            "validated by seeds; the account may be uninitialized, in which case the",
+            "global fee applies. Read-only."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  101,
+                  101,
+                  95,
+                  111,
+                  118,
+                  101,
+                  114,
+                  114,
+                  105,
+                  100,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "withdrawal_state",
+          "docs": [
+            "Per-user nonce watermark; `nonce` must exceed its `last_nonce`. Created",
+            "here on first use. Kept last in the account list so a client built from",
+            "this IDL stays compatible with the pre-upgrade program, which treats it",
+            "as a trailing remaining account."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  119,
+                  105,
+                  116,
+                  104,
+                  100,
+                  114,
+                  97,
+                  119,
+                  97,
+                  108,
+                  95,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "nonce",
+          "type": "u64"
+        },
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "xmr_address",
+          "type": "string"
+        },
+        {
+          "name": "exact_out",
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "revert_withdrawal",
+      "docs": [
+        "Authority reverts a withdrawal - re-mints the net amount to the user.",
+        "The withdrawal fee collected at request time stays in the treasury.",
+        "ONLY allowed in Pending state (before XMR send attempted)",
+        "Once marked as Sending, CANNOT be reverted - must complete"
+      ],
+      "discriminator": [
+        161,
+        23,
+        14,
+        3,
+        20,
+        72,
+        4,
+        121
+      ],
+      "accounts": [
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "withdrawal",
+          "writable": true
+        },
+        {
+          "name": "wxmr_mint",
+          "writable": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "user_token_account",
+          "writable": true
+        },
+        {
+          "name": "user",
+          "writable": true
+        },
+        {
+          "name": "authority",
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "token_program",
+          "address": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"
+        }
+      ],
+      "args": [
+        {
+          "name": "reason",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "seed_withdrawal_state",
+      "docs": [
+        "Pre-create (or raise) a user's withdrawal nonce watermark. Authority",
+        "only. Run once per past withdrawer right after the monotonic-nonce",
+        "upgrade with the highest nonce that user has ever used, so pre-upgrade",
+        "nonces can never be replayed and existing users pay no rent on their",
+        "next withdrawal. Never lowers an existing watermark."
+      ],
+      "discriminator": [
+        111,
+        171,
+        247,
+        62,
+        11,
+        65,
+        65,
+        18
+      ],
+      "accounts": [
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "withdrawal_state",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  119,
+                  105,
+                  116,
+                  104,
+                  100,
+                  114,
+                  97,
+                  119,
+                  97,
+                  108,
+                  95,
+                  115,
+                  116,
+                  97,
+                  116,
+                  101
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "user",
+          "type": "pubkey"
+        },
+        {
+          "name": "last_nonce",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "set_fee_bps",
+      "docs": [
+        "Initialize the bridge config and create the config-owned wXMR fee treasury.",
+        "admin function",
+        "Grow an existing BridgeConfig account that predates the `fee_bps` field so",
+        "the current program can deserialize it. Reallocs the account to the new size",
+        "and zero-fills the appended bytes (fee_bps = 0). Idempotent and authority-only.",
+        "admin function",
+        "Create the config-owned wXMR fee treasury for a deployment that was",
+        "initialized before the fee feature existed (initialize cannot be re-run).",
+        "Idempotent - a no-op if the treasury already exists.",
+        "admin function",
+        "Set the withdrawal fee in basis points (0 = disabled, 10_000 = 100%)."
+      ],
+      "discriminator": [
+        2,
+        161,
+        245,
+        141,
+        111,
+        32,
+        39,
+        198
+      ],
+      "accounts": [
+        {
+          "name": "config",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        }
+      ],
+      "args": [
+        {
+          "name": "fee_bps",
+          "type": "u16"
+        }
+      ]
+    },
+    {
+      "name": "set_fee_override",
+      "docs": [
+        "admin function",
+        "Add or update a per-user withdrawal fee override (the \"fee whitelist\").",
+        "`fee_bps` is the custom fee for that user (0 = free withdrawals) and can be",
+        "adjusted at any time. Only the config authority may call this."
+      ],
+      "discriminator": [
+        238,
+        6,
+        44,
+        194,
+        50,
+        78,
+        93,
+        3
+      ],
+      "accounts": [
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "fee_override",
+          "docs": [
+            "Per-user fee override PDA. Created on first set, updated thereafter."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  101,
+                  101,
+                  95,
+                  111,
+                  118,
+                  101,
+                  114,
+                  114,
+                  105,
+                  100,
+                  101
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "user"
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "user",
+          "type": "pubkey"
+        },
+        {
+          "name": "fee_bps",
+          "type": "u16"
+        }
+      ]
+    },
+    {
+      "name": "update_token_metadata",
+      "docs": [
+        "admin function"
+      ],
+      "discriminator": [
+        243,
+        6,
+        8,
+        23,
+        126,
+        181,
+        251,
+        158
+      ],
+      "accounts": [
+        {
+          "name": "config",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  111,
+                  110,
+                  102,
+                  105,
+                  103
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "wxmr_mint",
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "metadata",
+          "writable": true
+        },
+        {
+          "name": "authority",
+          "signer": true,
+          "relations": [
+            "config"
+          ]
+        },
+        {
+          "name": "token_metadata_program",
+          "address": "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+        }
+      ],
+      "args": [
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "symbol",
+          "type": "string"
+        },
+        {
+          "name": "uri",
+          "type": "string"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "AuditRecord",
+      "discriminator": [
+        23,
+        133,
+        250,
+        12,
+        85,
+        60,
+        64,
+        139
+      ]
+    },
+    {
+      "name": "BridgeConfig",
+      "discriminator": [
+        40,
+        206,
+        51,
+        233,
+        246,
+        40,
+        178,
+        85
+      ]
+    },
+    {
+      "name": "DepositRecord",
+      "discriminator": [
+        83,
+        232,
+        10,
+        31,
+        251,
+        49,
+        189,
+        167
+      ]
+    },
+    {
+      "name": "FeeOverride",
+      "discriminator": [
+        45,
+        33,
+        41,
+        248,
+        253,
+        236,
+        239,
+        85
+      ]
+    },
+    {
+      "name": "UserWithdrawalState",
+      "discriminator": [
+        206,
+        93,
+        63,
+        106,
+        34,
+        146,
+        231,
+        230
+      ]
+    },
+    {
+      "name": "WithdrawalRecord",
+      "discriminator": [
+        88,
+        59,
+        154,
+        202,
+        216,
+        210,
+        211,
+        237
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "AuditRecordCreatedEvent",
+      "discriminator": [
+        240,
+        13,
+        164,
+        165,
+        151,
+        62,
+        2,
+        162
+      ]
+    },
+    {
+      "name": "DepositAccountClosedEvent",
+      "discriminator": [
+        61,
+        150,
+        159,
+        160,
+        136,
+        66,
+        119,
+        96
+      ]
+    },
+    {
+      "name": "DepositAccountCreatedEvent",
+      "discriminator": [
+        179,
+        110,
+        80,
+        76,
+        96,
+        188,
+        243,
+        68
+      ]
+    },
+    {
+      "name": "DepositAddressAssignedEvent",
+      "discriminator": [
+        157,
+        192,
+        51,
+        141,
+        167,
+        184,
+        6,
+        248
+      ]
+    },
+    {
+      "name": "DepositMintedEvent",
+      "discriminator": [
+        187,
+        199,
+        161,
+        126,
+        73,
+        247,
+        28,
+        44
+      ]
+    },
+    {
+      "name": "FeeBpsUpdatedEvent",
+      "discriminator": [
+        76,
+        157,
+        212,
+        224,
+        3,
+        54,
+        39,
+        55
+      ]
+    },
+    {
+      "name": "FeeOverrideRemovedEvent",
+      "discriminator": [
+        127,
+        181,
+        64,
+        26,
+        35,
+        3,
+        131,
+        172
+      ]
+    },
+    {
+      "name": "FeeOverrideSetEvent",
+      "discriminator": [
+        3,
+        104,
+        73,
+        239,
+        148,
+        127,
+        209,
+        34
+      ]
+    },
+    {
+      "name": "WithdrawCompletedEvent",
+      "discriminator": [
+        192,
+        162,
+        40,
+        197,
+        83,
+        94,
+        198,
+        66
+      ]
+    },
+    {
+      "name": "WithdrawRequestedEvent",
+      "discriminator": [
+        21,
+        86,
+        249,
+        76,
+        80,
+        238,
+        207,
+        154
+      ]
+    },
+    {
+      "name": "WithdrawRevertedEvent",
+      "discriminator": [
+        41,
+        94,
+        186,
+        33,
+        56,
+        24,
+        133,
+        80
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidXmrAddress",
+      "msg": "Invalid XMR address: must be a well-formed Monero address (base58 decode, matching Keccak-256 checksum, mainnet network tag, and valid ed25519 keys)"
+    },
+    {
+      "code": 6001,
+      "name": "InvalidAmount",
+      "msg": "Invalid amount"
+    },
+    {
+      "code": 6002,
+      "name": "InvalidMint",
+      "msg": "Invalid mint"
+    },
+    {
+      "code": 6003,
+      "name": "InvalidOwner",
+      "msg": "Invalid owner"
+    },
+    {
+      "code": 6004,
+      "name": "InvalidRecipient",
+      "msg": "Invalid recipient"
+    },
+    {
+      "code": 6005,
+      "name": "InvalidTokenAccount",
+      "msg": "Invalid token account - must be the correct ATA"
+    },
+    {
+      "code": 6006,
+      "name": "DepositNotPending",
+      "msg": "Deposit account is not in pending status"
+    },
+    {
+      "code": 6007,
+      "name": "DepositNotActive",
+      "msg": "Deposit account is not active"
+    },
+    {
+      "code": 6008,
+      "name": "AddressAlreadyAssigned",
+      "msg": "Deposit address already assigned"
+    },
+    {
+      "code": 6009,
+      "name": "DepositTooSmall",
+      "msg": "Deposit amount too small (minimum 0.1 XMR)"
+    },
+    {
+      "code": 6010,
+      "name": "WithdrawalNotPending",
+      "msg": "Withdrawal is not in pending status"
+    },
+    {
+      "code": 6011,
+      "name": "WithdrawalAlreadyProcessed",
+      "msg": "Withdrawal already processed (completed or sending)"
+    },
+    {
+      "code": 6012,
+      "name": "WithdrawalCannotBeReverted",
+      "msg": "Withdrawal cannot be reverted - already marked as sending (XMR may have been sent)"
+    },
+    {
+      "code": 6013,
+      "name": "WithdrawalTooSmall",
+      "msg": "Withdrawal amount too small (minimum 0.1 XMR)"
+    },
+    {
+      "code": 6014,
+      "name": "StatisticsOverflow",
+      "msg": "Overflow in statistics calculation"
+    },
+    {
+      "code": 6015,
+      "name": "InvalidFeeBps",
+      "msg": "Invalid fee: basis points must be <= 10000 (100%)"
+    },
+    {
+      "code": 6016,
+      "name": "InvalidConfigAccount",
+      "msg": "Invalid config account for migration"
+    },
+    {
+      "code": 6017,
+      "name": "NonceNotIncreasing",
+      "msg": "Withdrawal nonce must be greater than the user\\'s last nonce"
+    }
+  ],
+  "types": [
+    {
+      "name": "AuditRecord",
+      "docs": [
+        "Audit record for epoch consolidation proof",
+        "Contains all consolidation tx proofs and unconfirmed balance info in one record",
+        "Data field is dynamically sized - account can be extended with extend_audit_data"
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "epoch",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "circulating_supply",
+            "type": "u64"
+          },
+          {
+            "name": "spendable_balance",
+            "type": "u64"
+          },
+          {
+            "name": "unconfirmed_balance",
+            "type": "u64"
+          },
+          {
+            "name": "data",
+            "type": "string"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "AuditRecordCreatedEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "epoch",
+            "type": "u64"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          },
+          {
+            "name": "circulating_supply",
+            "type": "u64"
+          },
+          {
+            "name": "spendable_balance",
+            "type": "u64"
+          },
+          {
+            "name": "unconfirmed_balance",
+            "type": "u64"
+          },
+          {
+            "name": "data_len",
+            "type": "u32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BridgeConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "wxmr_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "total_deposits",
+            "type": "u64"
+          },
+          {
+            "name": "total_withdrawals",
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "fee_bps",
+            "docs": [
+              "Withdrawal fee in basis points (0 = disabled). Fee is collected in wXMR.",
+              "NOTE: kept LAST so the account can be grown in place via realloc + zero-fill",
+              "(migrate_config) for configs created before this field existed."
+            ],
+            "type": "u16"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DepositAccountClosedEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "deposit_pda",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "total_deposited",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DepositAccountCreatedEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "deposit_pda",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DepositAddressAssignedEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "deposit_pda",
+            "type": "pubkey"
+          },
+          {
+            "name": "xmr_address",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DepositMintedEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "deposit_pda",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "total_deposited",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DepositRecord",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "xmr_deposit_address",
+            "type": "string"
+          },
+          {
+            "name": "total_deposited",
+            "type": "u64"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "DepositStatus"
+              }
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DepositStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Pending"
+          },
+          {
+            "name": "Active"
+          },
+          {
+            "name": "Closed"
+          }
+        ]
+      }
+    },
+    {
+      "name": "FeeBpsUpdatedEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "old_fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "new_fee_bps",
+            "type": "u16"
+          }
+        ]
+      }
+    },
+    {
+      "name": "FeeOverride",
+      "docs": [
+        "Per-user withdrawal fee override - the admin-managed \"fee whitelist\".",
+        "Only writable by the config authority. When present, its fee_bps overrides the",
+        "global fee for that user (0 = free withdrawals)."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "user",
+            "type": "pubkey"
+          },
+          {
+            "name": "fee_bps",
+            "type": "u16"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "FeeOverrideRemovedEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "user",
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "FeeOverrideSetEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "user",
+            "type": "pubkey"
+          },
+          {
+            "name": "fee_bps",
+            "type": "u16"
+          }
+        ]
+      }
+    },
+    {
+      "name": "UserWithdrawalState",
+      "docs": [
+        "Per-user withdrawal nonce watermark. A WithdrawalRecord PDA is seeded by",
+        "(user, nonce) and closed on completion, so without this a user could",
+        "re-initialize a finished withdrawal's address by re-using its nonce. Nonces",
+        "must strictly increase per user, which makes every withdrawal address unique",
+        "for all time. Created on the user's first request (or pre-seeded by the",
+        "authority via `seed_withdrawal_state`) and never closed."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "user",
+            "type": "pubkey"
+          },
+          {
+            "name": "last_nonce",
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "WithdrawCompletedEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "withdrawal_pda",
+            "type": "pubkey"
+          },
+          {
+            "name": "user",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "xmr_address",
+            "type": "string"
+          },
+          {
+            "name": "xmr_tx_hash",
+            "type": "string"
+          },
+          {
+            "name": "xmr_tx_key",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "WithdrawRequestedEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "withdrawal_pda",
+            "type": "pubkey"
+          },
+          {
+            "name": "user",
+            "type": "pubkey"
+          },
+          {
+            "name": "nonce",
+            "type": "u64"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "fee",
+            "type": "u64"
+          },
+          {
+            "name": "xmr_address",
+            "type": "string"
+          },
+          {
+            "name": "exact_out",
+            "type": "bool"
+          },
+          {
+            "name": "timestamp",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "WithdrawRevertedEvent",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "withdrawal_pda",
+            "type": "pubkey"
+          },
+          {
+            "name": "user",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "fee",
+            "type": "u64"
+          },
+          {
+            "name": "reason",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "WithdrawalRecord",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "user",
+            "type": "pubkey"
+          },
+          {
+            "name": "nonce",
+            "type": "u64"
+          },
+          {
+            "name": "amount",
+            "docs": [
+              "Net amount (piconero) to be sent as XMR. Equals the burned wXMR (amount requested minus fee)."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "xmr_address",
+            "type": "string"
+          },
+          {
+            "name": "exact_out",
+            "type": "bool"
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": {
+                "name": "WithdrawalStatus"
+              }
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          },
+          {
+            "name": "fee",
+            "docs": [
+              "wXMR fee transferred to the treasury at request time (0 if fee disabled)."
+            ],
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "WithdrawalStatus",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Pending"
+          },
+          {
+            "name": "Sending"
+          },
+          {
+            "name": "Completed"
+          }
+        ]
+      }
+    }
+  ]
+}
